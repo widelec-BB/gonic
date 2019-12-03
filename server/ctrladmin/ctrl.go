@@ -111,6 +111,7 @@ type templateData struct {
 	//
 	CurrentLastFMAPIKey    string
 	CurrentLastFMAPISecret string
+	CurrentFunkNode        string
 	SelectedUser           *model.User
 }
 

@@ -16,6 +16,7 @@ require (
 	github.com/josephburnett/jd v0.0.0-20190531151850-1f9071c800e7
 	github.com/karrick/godirwalk v1.15.2
 	github.com/kr/pretty v0.1.0 // indirect
+	github.com/machinebox/graphql v0.2.2
 	github.com/nicksellen/audiotags v0.0.0-20160226222119-94015fa599bd
 	github.com/oxtoacart/bpool v0.0.0-20190530202638-03653db5a59c
 	github.com/peterbourgon/ff v1.2.0

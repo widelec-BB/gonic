@@ -13,6 +13,8 @@ import (
 	"senan.xyz/g/gonic/scanner"
 	"senan.xyz/g/gonic/server/ctrlsubsonic/params"
 	"senan.xyz/g/gonic/server/ctrlsubsonic/spec"
+	"senan.xyz/g/gonic/server/funk"
+	"senan.xyz/g/gonic/server/key"
 	"senan.xyz/g/gonic/server/lastfm"
 )
 
@@ -91,17 +93,12 @@ func (c *Controller) ServeScrobble(r *http.Request) *spec.Response {
 	if err != nil {
 		return spec.NewError(10, "please provide an `id` parameter")
 	}
-	// fetch user to get lastfm session
-	user := r.Context().Value(CtxUser).(*model.User)
-	if user.LastFMSession == "" {
-		return spec.NewError(0, "you don't have a last.fm session")
-	}
-	// fetch track for getting info to send to last.fm function
 	track := &model.Track{}
 	c.DB.
 		Preload("Album").
 		Preload("Artist").
 		First(track, id)
+	user := r.Context().Value(key.User).(*model.User)
 	// scrobble with above info
 	err = lastfm.Scrobble(lastfm.ScrobbleOptions{
 		BaseAuthOptions: lastfm.BaseAuthOptions{
@@ -116,7 +113,16 @@ func (c *Controller) ServeScrobble(r *http.Request) *spec.Response {
 		Submission: params.GetOr("submission", "true") != "false",
 	})
 	if err != nil {
-		return spec.NewError(0, "error when submitting: %v", err)
+		log.Printf("error while submitting to lastfm: %v\n", err)
+	}
+	err = funk.Funk(funk.FunkOptions{
+		BaseURL:  c.DB.GetSetting("funk_node"),
+		Username: user.FunkPassword,
+		Password: user.FunkPassword,
+		Track:    track,
+	})
+	if err != nil {
+		log.Printf("error while submitting to funk: %v\n", err)
 	}
 	return spec.NewResponse()
 }

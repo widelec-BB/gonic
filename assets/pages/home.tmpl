@@ -19,6 +19,29 @@
 </div>
 <div class="padded box">
     <div class="box-title">
+        <i class="mdi mdi-music-note"></i> funk.pub
+    </div>
+    <div class="text-right">
+        {{ if .User.IsAdmin }}
+            <a href="/admin/update_funk_node">update node</a><br/>
+        {{ end }}
+        {{ if .CurrentFunkNode }}
+            <span class="light">current status</span>
+            {{ if .User.FunkUsername }}
+                linked
+                <span class="light">&#124;</span>
+                <a href="/admin/unlink_funk_do">unlink</a><br/>
+            {{ else }}
+                <span class="angry">unlinked</span>
+                <a href="/admin/link_funk">link</a><br/>
+            {{ end }}
+        {{ else if not .User.IsAdmin }}
+            <span class="light">funk node not set. please ask your admin to set it</span>
+        {{ end }}
+    </div>
+</div>
+<div class="padded box">
+    <div class="box-title">
         <i class="mdi mdi-lastfm"></i> last.fm
     </div>
     <div class="text-right">

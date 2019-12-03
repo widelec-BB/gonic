@@ -1,0 +1,14 @@
+{{ define "user" }}
+<div class="padded box">
+    <div class="box-title">
+        <i class="mdi mdi-music-note"></i> updating funk node
+    </div>
+    <div class="text-right">
+        <span class="light">current node</span> <i>{{ default "not set" .CurrentFunkNode }}</i><br/>
+    </div>
+    <form action="/admin/update_funk_node_do" method="post">
+        <input type="text" id="node" name="node" placeholder="new node">
+        <input type="submit" value="update">
+    </form>
+</div>
+{{ end }}

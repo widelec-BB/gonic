@@ -98,6 +98,9 @@ func (s *Server) SetupAdmin() error {
 	routUser.Handle("/change_own_password_do", ctrl.H(ctrl.ServeChangeOwnPasswordDo))
 	routUser.Handle("/link_lastfm_do", ctrl.H(ctrl.ServeLinkLastFMDo))
 	routUser.Handle("/unlink_lastfm_do", ctrl.H(ctrl.ServeUnlinkLastFMDo))
+	routUser.Handle("/link_funk", ctrl.H(ctrl.ServeLinkFunk))
+	routUser.Handle("/link_funk_do", ctrl.H(ctrl.ServeLinkFunkDo))
+	routUser.Handle("/unlink_funk_do", ctrl.H(ctrl.ServeUnlinkFunkDo))
 	routUser.Handle("/upload_playlist_do", ctrl.H(ctrl.ServeUploadPlaylistDo))
 	//
 	// begin admin routes (if session is valid, and is admin)
@@ -111,6 +114,8 @@ func (s *Server) SetupAdmin() error {
 	routAdmin.Handle("/create_user_do", ctrl.H(ctrl.ServeCreateUserDo))
 	routAdmin.Handle("/update_lastfm_api_key", ctrl.H(ctrl.ServeUpdateLastFMAPIKey))
 	routAdmin.Handle("/update_lastfm_api_key_do", ctrl.H(ctrl.ServeUpdateLastFMAPIKeyDo))
+	routAdmin.Handle("/update_funk_node", ctrl.H(ctrl.ServeUpdateFunkNode))
+	routAdmin.Handle("/update_funk_node_do", ctrl.H(ctrl.ServeUpdateFunkNodeDo))
 	routAdmin.Handle("/start_scan_do", ctrl.H(ctrl.ServeStartScanDo))
 	// middlewares should be run for not found handler
 	// https://github.com/gorilla/mux/issues/416

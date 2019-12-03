@@ -62,6 +62,8 @@ type User struct {
 	Name          string `gorm:"not null; unique_index" sql:"default: null"`
 	Password      string `gorm:"not null" sql:"default: null"`
 	LastFMSession string `sql:"default: null"`
+	FunkUsername  string `sql:"default: null"`
+	FunkPassword  string `sql:"default: null"`
 	IsAdmin       bool   `sql:"default: null"`
 }
 

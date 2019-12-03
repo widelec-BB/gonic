@@ -40,6 +40,8 @@ func (c *Controller) ServeHome(r *http.Request) *Response {
 	)
 	data.RequestRoot = fmt.Sprintf("%s://%s", scheme, host)
 	data.CurrentLastFMAPIKey = c.DB.GetSetting("lastfm_api_key")
+	// begin funk box
+	data.CurrentFunkNode = c.DB.GetSetting("funk_node")
 	// begin users box
 	c.DB.Find(&data.AllUsers)
 	// begin recent folders box
@@ -120,6 +122,26 @@ func (c *Controller) ServeLinkLastFMDo(r *http.Request) *Response {
 func (c *Controller) ServeUnlinkLastFMDo(r *http.Request) *Response {
 	user := r.Context().Value(CtxUser).(*model.User)
 	user.LastFMSession = ""
+	c.DB.Save(&user)
+	return &Response{redirect: "/admin/home"}
+}
+
+func (c *Controller) ServeLinkFunk(r *http.Request) *Response {
+	return &Response{template: "link_funk.tmpl"}
+}
+
+func (c *Controller) ServeLinkFunkDo(r *http.Request) *Response {
+	user := r.Context().Value(key.User).(*model.User)
+	user.FunkUsername = r.FormValue("username")
+	user.FunkPassword = r.FormValue("password")
+	c.DB.Save(user)
+	return &Response{redirect: "/admin/home"}
+}
+
+func (c *Controller) ServeUnlinkFunkDo(r *http.Request) *Response {
+	user := r.Context().Value(key.User).(*model.User)
+	user.FunkUsername = ""
+	user.FunkPassword = ""
 	c.DB.Save(&user)
 	return &Response{redirect: "/admin/home"}
 }
@@ -252,6 +274,27 @@ func (c *Controller) ServeUpdateLastFMAPIKeyDo(r *http.Request) *Response {
 	c.DB.SetSetting("lastfm_api_key", apiKey)
 	c.DB.SetSetting("lastfm_secret", secret)
 	return &Response{redirect: "/admin/home"}
+}
+
+func (c *Controller) ServeUpdateFunkNode(r *http.Request) *Response {
+	data := &templateData{}
+	data.CurrentFunkNode = c.DB.GetSetting("funk_node")
+	return &Response{
+		template: "update_funk_node.tmpl",
+		data:     data,
+	}
+}
+
+func (c *Controller) ServeUpdateFunkNodeDo(r *http.Request) *Response {
+	node := r.FormValue("node")
+	if node != "" {
+		c.DB.SetSetting("funk_node", node)
+		return &Response{redirect: "/admin/home"}
+	}
+	return &Response{
+		redirect: r.Referer(),
+		flashW:   []string{"please provide a node"},
+	}
 }
 
 func (c *Controller) ServeStartScanDo(r *http.Request) *Response {
