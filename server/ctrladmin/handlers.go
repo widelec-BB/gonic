@@ -105,11 +105,11 @@ func (c *Controller) ServeLinkLastFMDo(r *http.Request) *Response {
 			code: 400,
 		}
 	}
-	sessionKey, err := lastfm.GetSession(
-		c.DB.GetSetting("lastfm_api_key"),
-		c.DB.GetSetting("lastfm_secret"),
-		token,
-	)
+	authOpts := lastfm.BaseAuthOptions{
+		APIKey: c.DB.GetSetting("lastfm_api_key"),
+		Secret: c.DB.GetSetting("lastfm_secret"),
+	}
+	sessionKey, err := lastfm.GetSession(authOpts, token)
 	if err != nil {
 		return &Response{
 			redirect: "/admin/home",
