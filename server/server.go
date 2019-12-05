@@ -127,7 +127,9 @@ func (s *Server) SetupAdmin() error {
 
 func (s *Server) SetupSubsonic() error {
 	ctrl := ctrlsubsonic.New(s.base)
-	rout := s.router.PathPrefix("/rest").Subrouter()
+	routPublic := s.router.PathPrefix("/rest").Subrouter()
+	routPublic.Handle("/getCoverArt{_:(?:\\.view)?}", ctrl.HR(ctrl.ServeGetCoverArt))
+	rout := routPublic.NewRoute().Subrouter()
 	rout.Use(ctrl.WithParams)
 	rout.Use(ctrl.WithRequiredParams)
 	rout.Use(ctrl.WithUser)
@@ -148,7 +150,6 @@ func (s *Server) SetupSubsonic() error {
 	//
 	// begin raw
 	rout.Handle("/download{_:(?:\\.view)?}", ctrl.HR(ctrl.ServeStream))
-	rout.Handle("/getCoverArt{_:(?:\\.view)?}", ctrl.HR(ctrl.ServeGetCoverArt))
 	rout.Handle("/stream{_:(?:\\.view)?}", ctrl.HR(ctrl.ServeStream))
 	//
 	// begin browse by tag
