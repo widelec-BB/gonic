@@ -131,7 +131,7 @@ func (c *Controller) ServeLinkFunk(r *http.Request) *Response {
 }
 
 func (c *Controller) ServeLinkFunkDo(r *http.Request) *Response {
-	user := r.Context().Value(key.User).(*model.User)
+	user := r.Context().Value(CtxUser).(*model.User)
 	user.FunkUsername = r.FormValue("username")
 	user.FunkPassword = r.FormValue("password")
 	c.DB.Save(user)
@@ -139,7 +139,7 @@ func (c *Controller) ServeLinkFunkDo(r *http.Request) *Response {
 }
 
 func (c *Controller) ServeUnlinkFunkDo(r *http.Request) *Response {
-	user := r.Context().Value(key.User).(*model.User)
+	user := r.Context().Value(CtxUser).(*model.User)
 	user.FunkUsername = ""
 	user.FunkPassword = ""
 	c.DB.Save(&user)

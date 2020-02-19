@@ -14,7 +14,6 @@ import (
 	"senan.xyz/g/gonic/server/ctrlsubsonic/params"
 	"senan.xyz/g/gonic/server/ctrlsubsonic/spec"
 	"senan.xyz/g/gonic/server/funk"
-	"senan.xyz/g/gonic/server/key"
 	"senan.xyz/g/gonic/server/lastfm"
 )
 
@@ -98,7 +97,7 @@ func (c *Controller) ServeScrobble(r *http.Request) *spec.Response {
 		Preload("Album").
 		Preload("Artist").
 		First(track, id)
-	user := r.Context().Value(key.User).(*model.User)
+	user := r.Context().Value(CtxUser).(*model.User)
 	// scrobble with above info
 	err = lastfm.Scrobble(lastfm.ScrobbleOptions{
 		BaseAuthOptions: lastfm.BaseAuthOptions{
@@ -115,12 +114,9 @@ func (c *Controller) ServeScrobble(r *http.Request) *spec.Response {
 	if err != nil {
 		log.Printf("error while submitting to lastfm: %v\n", err)
 	}
-	if parsing.GetStrParam(r, "submission") != "false" {
-		return spec.NewResponse()
-	}
 	err = funk.Funk(funk.FunkOptions{
 		BaseURL:  c.DB.GetSetting("funk_node"),
-		Username: user.FunkPassword,
+		Username: user.FunkUsername,
 		Password: user.FunkPassword,
 		Track:    track,
 	})

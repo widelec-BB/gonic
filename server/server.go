@@ -128,9 +128,9 @@ func (s *Server) SetupAdmin() error {
 func (s *Server) SetupSubsonic() error {
 	ctrl := ctrlsubsonic.New(s.base)
 	routPublic := s.router.PathPrefix("/rest").Subrouter()
+	routPublic.Use(ctrl.WithParams)
 	routPublic.Handle("/getCoverArt{_:(?:\\.view)?}", ctrl.HR(ctrl.ServeGetCoverArt))
 	rout := routPublic.NewRoute().Subrouter()
-	rout.Use(ctrl.WithParams)
 	rout.Use(ctrl.WithRequiredParams)
 	rout.Use(ctrl.WithUser)
 	//
