@@ -69,6 +69,7 @@ func New(path string) (*DB, error) {
 		migrationAddGenre,
 		migrationUpdateTranscodePrefIDX,
 		migrationAddAlbumIDX,
+		migrationDeleteTrackArtistCascade,
 	))
 	if err = migr.Migrate(); err != nil {
 		return nil, fmt.Errorf("migrating to latest version: %w", err)

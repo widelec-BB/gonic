@@ -136,8 +136,53 @@ var migrationAddAlbumIDX = gormigrate.Migration{
 	ID: "202004302006",
 	Migrate: func(tx *gorm.DB) error {
 		return tx.AutoMigrate(
+			// should add new index for older installations
 			Album{},
 		).
 			Error
+	},
+}
+
+var migrationDeleteTrackArtistCascade = gormigrate.Migration{
+	ID: "202005031842",
+	Migrate: func(tx *gorm.DB) error {
+		// based on https://www.sqlite.org/lang_altertable.html
+		// step 1	get the current schema version
+		// step 2	enable writable_schema
+		// step 3	replace the sql
+		// step 4	increment the current schema version
+		// step 5	disable writable_schema
+		var schemaVersion int
+		err := tx.
+			Raw("PRAGMA schema_version").
+			Row().
+			Scan(&schemaVersion)
+		if err != nil {
+			return fmt.Errorf("step get schema version: %w", err)
+		}
+		step := tx.Exec(`PRAGMA writable_schema=ON`)
+		if err := step.Error; err != nil {
+			return fmt.Errorf("step set writable_schema: %w", err)
+		}
+		step = tx.Exec(`
+			UPDATE sqlite_master
+			SET sql=REPLACE(sql, 'artists(id) ON DELETE CASCADE', 'artists(id)')
+			WHERE type='table' AND name='tracks'
+		`)
+		if err := step.Error; err != nil {
+			return fmt.Errorf("step set replace sql: %w", err)
+		}
+		schemaVersion++
+		// tried to use `tx.Exec("PRAGMA schema_version=?", schemaVersion)` here
+		// but it was giving me a syntax error, so here is some good ole printf sql
+		step = tx.Raw(fmt.Sprintf("PRAGMA schema_version=%d", schemaVersion))
+		if err := step.Error; err != nil {
+			return fmt.Errorf("step inc schema version: %w", err)
+		}
+		step = tx.Exec(`PRAGMA writable_schema=OFF`)
+		if err := step.Error; err != nil {
+			return fmt.Errorf("step unset writable_schema: %w", err)
+		}
+		return nil
 	},
 }

@@ -71,7 +71,7 @@ type Track struct {
 	Album          *Album
 	AlbumID        int `gorm:"not null; unique_index:idx_folder_filename" sql:"default: null; type:int REFERENCES albums(id) ON DELETE CASCADE"`
 	Artist         *Artist
-	ArtistID       int    `gorm:"not null" sql:"default: null; type:int REFERENCES artists(id) ON DELETE CASCADE"`
+	ArtistID       int    `gorm:"not null" sql:"default: null; type:int REFERENCES artists(id)"`
 	Size           int    `gorm:"not null" sql:"default: null"`
 	Length         int    `sql:"default: null"`
 	Bitrate        int    `sql:"default: null"`
