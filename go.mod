@@ -35,4 +35,6 @@ require (
 
 replace github.com/golang/lint => golang.org/x/lint v0.0.0-20190409202823-959b441ac422
 
+replace github.com/nicksellen/audiotags v0.0.0-20160226222119-94015fa599bd => github.com/widelec-BB/audiotags v0.0.0-20200617085319-6b90e67d4004
+
 go 1.14

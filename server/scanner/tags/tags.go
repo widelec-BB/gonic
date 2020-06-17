@@ -20,13 +20,14 @@ func intSep(in, sep string) int {
 }
 
 type Tags struct {
-	raw   map[string]string
-	props *audiotags.AudioProperties
+	raw    map[string]string
+	props  *audiotags.AudioProperties
+	images map[string][]byte
 }
 
 func New(path string) (*Tags, error) {
-	raw, props, err := audiotags.Read(path)
-	return &Tags{raw, props}, err
+	raw, props, images, err := audiotags.Read(path)
+	return &Tags{raw, props, images}, err
 }
 
 func (t *Tags) firstTag(keys ...string) string {
@@ -36,6 +37,15 @@ func (t *Tags) firstTag(keys ...string) string {
 		}
 	}
 	return ""
+}
+
+func (t *Tags) firstImage(key string) []byte {
+	for id, image := range t.images {
+		if strings.HasPrefix(id, key) {
+			return image
+		}
+	}
+	return nil
 }
 
 func (t *Tags) Title() string         { return t.firstTag("title") }
@@ -50,3 +60,4 @@ func (t *Tags) TrackNumber() int      { return intSep(t.firstTag("tracknumber"),
 func (t *Tags) DiscNumber() int       { return intSep(t.firstTag("discnumber"), "/") }   // eg. 1/2
 func (t *Tags) Length() int           { return t.props.Length }
 func (t *Tags) Bitrate() int          { return t.props.Bitrate }
+func (t *Tags) Cover() []byte         { return t.firstImage("cover") }

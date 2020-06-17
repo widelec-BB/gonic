@@ -1,6 +1,7 @@
 package ctrlsubsonic
 
 import (
+	"bytes"
 	"io"
 	"log"
 	"net/http"
@@ -8,6 +9,7 @@ import (
 	"time"
 
 	"github.com/jinzhu/gorm"
+	"github.com/nicksellen/audiotags"
 
 	"go.senan.xyz/gonic/server/ctrlsubsonic/params"
 	"go.senan.xyz/gonic/server/ctrlsubsonic/spec"
@@ -68,7 +70,23 @@ func (c *Controller) ServeGetCoverArt(w http.ResponseWriter, r *http.Request) *s
 		return spec.NewError(10, "could not find a cover with that id")
 	}
 	if folder.Cover == "" {
-		return spec.NewError(10, "no cover found for that folder")
+		track := &db.Track{}
+		err = c.DB.Where("album_id = ?", folder.ID).First(track).Error
+		if gorm.IsRecordNotFoundError(err) {
+			return spec.NewError(10, "could not find a cover with that id")
+		}
+		track.Album = folder
+		trackPath := path.Join(c.MusicPath, track.RelPath())
+		tags, err := audiotags.Open(trackPath)
+		if err != nil {
+			spec.NewError(10, "could not find a cover with that id")
+		}
+		images := tags.ReadImages()
+		for _, img := range images {
+			http.ServeContent(w, r, "", time.Now(), bytes.NewReader(img))
+			return nil
+		}
+		return spec.NewError(10, "could not find a cover with that id")
 	}
 	absPath := path.Join(
 		c.MusicPath,
